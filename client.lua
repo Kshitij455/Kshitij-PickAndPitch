@@ -5,16 +5,6 @@ AddEventHandler('throwable:objectCreated', function(objectEntity)
     SetEntityAsMissionEntity(objectEntity, true, true)
 end)
 
-function PickUpObject()
-    local playerPed = PlayerPedId()
-    local x, y, z = table.unpack(GetEntityCoords(playerPed))
-    local object = GetClosestObjectOfType(x, y, z, 2.5, GetHashKey('prop_cs_rub_binbag_01'), false, false, false)
-
-    if DoesEntityExist(object) then
-        pickedUpObject = object
-        AttachEntityToEntity(pickedUpObject, playerPed, GetPedBoneIndex(playerPed, 57005), 0.5, 0.0, 0.1, 0.0, 0.0, 180.0, false, false, true, false, 1, true)
-    end
-end
 function PickupObject(object)
     TaskStartScenarioInPlace(PlayerPedId(), "PROP_HUMAN_BUM_BIN", 0, 1)
     Wait(1000)
