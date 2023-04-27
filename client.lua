@@ -26,6 +26,32 @@ function PickupObject(object)
     TriggerServerEvent("Kshitij-PickAndPitch:GiveItem", object)
 end
 
+function AimAndShoot()
+    local target, distance = GetClosestPlayerInArea(2.0)
+    if target ~= nil and distance < 50.0 then -- Only allow shooting within 50 meters
+        local weapon = GetSelectedPedWeapon(PlayerPedId())
+        local damage = 30.0 -- Adjust the damage as needed
+        TriggerServerEvent("Kshitij-PickAndPitch:ApplyDamage", GetPlayerServerId(target), weapon, damage)
+    end
+end
+
+function GetClosestPlayerInArea(radius)
+    local playerPed = PlayerPedId()
+    local playerCoords = GetEntityCoords(playerPed)
+    local closestPlayer, closestDistance = nil, -1
+    for _, player in ipairs(GetActivePlayers()) do
+        local targetPed = GetPlayerPed(player)
+        if targetPed ~= playerPed then
+            local targetCoords = GetEntityCoords(targetPed)
+            local distance = Vdist(playerCoords, targetCoords)
+            if closestDistance == -1 or distance < closestDistance then
+                closestPlayer, closestDistance = player, distance
+            end
+        end
+    end
+    return closestPlayer, closestDistance
+end
+
 function ThrowObject()
     if pickedUpObject ~= nil then
         local playerPed = PlayerPedId()
