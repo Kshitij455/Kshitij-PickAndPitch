@@ -52,6 +52,19 @@ function GetClosestPlayerInArea(radius)
     return closestPlayer, closestDistance
 end
 
+Citizen.CreateThread(function()
+    while true do
+        Citizen.Wait(0)
+        if IsControlJustReleased(0, Keys[Config.ThrowKey]) then
+            ThrowObject()
+        elseif IsControlJustReleased(0, Keys[Config.PickupKey]) then
+            PickUpObject()
+        elseif IsControlPressed(0, 25) then -- Left mouse button
+            AimAndShoot()
+        end
+    end
+end)
+
 function ThrowObject()
     if pickedUpObject ~= nil then
         local playerPed = PlayerPedId()
