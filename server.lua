@@ -15,6 +15,12 @@ AddEventHandler('throwable:createObject', function(objectModel, x, y, z)
     TriggerClientEvent('throwable:objectCreated', -1, objectEntity)
 end)
 
+RegisterNetEvent("Kshitij-PickAndPitch:ApplyDamage")
+AddEventHandler("Kshitij-PickAndPitch:ApplyDamage", function(target, weapon, damage)
+    local targetPed = GetPlayerPed(target)
+    ApplyDamageToPed(targetPed, damage, false)
+end)
+
 RegisterServerEvent('throwable:deleteObject')
 AddEventHandler('throwable:deleteObject', function(objectEntity)
     for i, entity in ipairs(objects) do
