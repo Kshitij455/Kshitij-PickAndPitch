@@ -15,6 +15,26 @@ function PickUpObject()
         AttachEntityToEntity(pickedUpObject, playerPed, GetPedBoneIndex(playerPed, 57005), 0.5, 0.0, 0.1, 0.0, 0.0, 180.0, false, false, true, false, 1, true)
     end
 end
+function PickupObject(object)
+    TaskStartScenarioInPlace(PlayerPedId(), "PROP_HUMAN_BUM_BIN", 0, 1)
+    Wait(1000)
+    DeleteEntity(object)
+    ClearPedTasksImmediately(PlayerPedId())
+    
+    -- Define the pickup animation
+    local animDict = "anim@heists@box_carry@"
+    local animName = "idle"
+    local flags = 49 -- Play the animation normally without repeating
+
+    -- Play the pickup animation
+    RequestAnimDict(animDict)
+    while not HasAnimDictLoaded(animDict) do
+        Citizen.Wait(0)
+    end
+    TaskPlayAnim(PlayerPedId(), animDict, animName, 8.0, -8.0, -1, flags, 0, false, false, false)
+    
+    TriggerServerEvent("Kshitij-PickAndPitch:GiveItem", object)
+end
 
 function ThrowObject()
     if pickedUpObject ~= nil then
