@@ -9,3 +9,19 @@ AddEventHandler("throwable:applyDamage", function()
         ApplyDamageToPed(targetEntity, Config.DamageAmount, false)
     end
 end)
+
+-- Register the throwable item (for QBCore framework)
+if Config.Framework == "qbcore" then
+    QBCore.Functions.CreateUseableItem(Config.ThrowableItem, function(source)
+        TriggerClientEvent("throwable:throwObject", source)
+        QBCore.Functions.RemoveItem(source, Config.ThrowableItem, 1)
+    end)
+end
+
+-- Register the throwable item (for ESX framework)
+if Config.Framework == "esx" then
+    ESX.RegisterUsableItem(Config.ThrowableItem, function(source)
+        TriggerClientEvent("throwable:throwObject", source)
+        ESX.RemoveInventoryItem(source, Config.ThrowableItem, 1)
+    end)
+end
