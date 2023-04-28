@@ -9,8 +9,15 @@ Config.PickupDistance = 2.0
 -- The control used to pick up objects (see https://docs.fivem.net/docs/game-references/controls/)
 Config.PickupControl = 38
 
--- The name of the object that can be picked up
-Config.PickupObject = "prop_box"
+-- The name(s) of the object(s) that can be picked up
+Config.PickupObjects = {
+    "prop_box_ammo01a",
+    "prop_box_ammo07a",
+    "prop_box_ammo07b",
+    "prop_box_ammo08b",
+    "prop_box_guncase_02a",
+    "prop_box_tea01a"
+}
 
 -- The bone index of the player where the object will be attached
 Config.PickupBoneIndex = 57005
