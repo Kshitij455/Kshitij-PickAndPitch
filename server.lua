@@ -1,33 +1,11 @@
-local objects = {} -- Table to store created object entities
-
-RegisterServerEvent('throwable:createObject')
-AddEventHandler('throwable:createObject', function(objectModel, x, y, z)
-    local modelHash = GetHashKey(objectModel)
-
-    RequestModel(modelHash)
-    while not HasModelLoaded(modelHash) do
-        Citizen.Wait(0)
+-- Handle applying damage to hit entities
+RegisterServerEvent("throwable:applyDamage")
+AddEventHandler("throwable:applyDamage", function()
+    local playerPed = source
+    local coords = GetEntityCoords(playerPed)
+    local targetEntityType, targetEntity = GetEntityType(GetClosestPed(coords.x, coords.y, coords.z, 3.0, 1, 0))
+    
+    if targetEntityType == 1 or targetEntityType == 2 then
+        ApplyDamageToPed(targetEntity, Config.DamageAmount, false)
     end
-
-    local objectEntity = CreateObject(modelHash, x, y, z, true, false, true)
-    table.insert(objects, objectEntity)
-
-    TriggerClientEvent('throwable:objectCreated', -1, objectEntity)
-end)
-
-RegisterNetEvent("Kshitij-PickAndPitch:ApplyDamage")
-AddEventHandler("Kshitij-PickAndPitch:ApplyDamage", function(target, weapon, damage)
-    local targetPed = GetPlayerPed(target)
-    ApplyDamageToPed(targetPed, damage, false)
-end)
-
-RegisterServerEvent('throwable:deleteObject')
-AddEventHandler('throwable:deleteObject', function(objectEntity)
-    for i, entity in ipairs(objects) do
-        if entity == objectEntity then
-            table.remove(objects, i)
-            break
-        end
-    end
-DeleteObject(objectEntity)
 end)
