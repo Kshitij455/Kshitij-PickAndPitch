@@ -15,7 +15,7 @@ Citizen.CreateThread(function()
         
         local playerPed = PlayerPedId()
         local coords = GetEntityCoords(playerPed)
-        local targetObject = GetClosestObjectOfType(coords, Config.PickupDistance, GetHashKey(Config.PickupObject))
+        local targetObject = GetClosestObjectOfType(coords, Config.PickupDistance, GetHashKey(table.unpack(Config.PickupObjects)))
 
         if IsControlJustPressed(0, Config.PickupControl) and not IsEntityDead(playerPed) and not IsPedInAnyVehicle(playerPed, true) then
             if targetObject ~= 0 then
@@ -38,31 +38,44 @@ Citizen.CreateThread(function()
             
             pickedUpObject = nil
 
-            TaskPlayAnim(playerPed, Config.ThrowAnimDict, Config.ThrowAnimName, 8.0, -8.0, -1, 1, 0, false, false, false)
+            TaskPlayAnim(playerPed, Config.ThrowAnimDict, Config.ThrowAnimName, 8.0, -8.0, -1, 0, 0, false, false, false)
 
-            TriggerServerEvent("throwable:applyDamage")
+            if Config.Framework == "qbcore" then
+                TriggerServerEvent("throwable:applyDamage")
+            elseif Config.Framework == "esx" then
+                local playerCoords = GetEntityCoords(playerPed)
+                local closestPlayer, closestDistance = ESX.Game.GetClosestPlayer(playerCoords)
+    
+                if closestPlayer ~= -1 and closestDistance <= 3.0 then
+                    TriggerServerEvent('esx:applyDamageToPlayer', closestPlayer, Config.DamageAmount)
+                end
+            end
         end
     end
 end)
 
--- Handle adding a throwable item to the player's inventory (for ESX framework)
-if Config.Framework == "esx" then
-    ESX.RegisterUsableItem(Config.ThrowableItem, function(source)
-        local xPlayer = ESX.GetPlayerFromId(source)
-        
-        TriggerClientEvent("throwable:addObjectToList", source, Config.PickupObject)
+-- Handle drawing the reticle for aiming
+Citizen.CreateThread(function()
+    while true do
+        Citizen.Wait(0)
 
-        xPlayer.removeInventoryItem(Config.ThrowableItem, 1)
-    end)
+        if pickedUpObject ~= nil then
+            local playerPed = PlayerPedId()
+            local forwardVector = GetEntityForwardVector(playerPed)
+            local targetCoords = GetOffsetFromEntityInWorldCoords(playerPed, forwardVector.x * 10.0, forwardVector.y * 10.0, forwardVector.z * 10.0)
+            local hit, hitCoords = GetPedLastWeaponImpact(playerPed)
+
+            if not hit then
+                hitCoords = targetCoords
+            end
+
+            DrawLine(coords.x, coords.y, coords.z, hitCoords.x, hitCoords.y, hitCoords.z, 255, 0, 0, 255)
+
+            if IsControlPressed(0, Config.ThrowControl) then
+                DrawMarker(28, hitCoords.x, hitCoords.y, hitCoords.z + 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 2.0, 2.0, 255, 0, 0, 100, false, true, 2, false, false, false, false)
+            else
+                DrawMarker(28, hitCoords.x, hitCoords.y, hitCoords.z + 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 2.0, 255, 255, 255, 100, false, true, 2, false, false, false, false)
 end
-
--- Handle adding a throwable item to the player's inventory (for QbCore framework)
-if Config.Framework == "qbcore" then
-    QBCore.Functions.CreateUseableItem(Config.ThrowableItem, function(source)
-        local Player = QBCore.Functions.GetPlayer(source)
-        
-        TriggerClientEvent("throwable:addObjectToList", source, Config.PickupObject)
-
-        Player.Functions.RemoveItem(Config.ThrowableItem, 1)
-    end)
 end
+end
+end)
